@@ -1,4 +1,4 @@
-const API_URL = "https://dcapp1-production.up.railway.app”;
+const API_URL = "https://dcapp1-production.up.railway.app";
 
 
 async function request(endpoint: string, options: RequestInit = {}) {
