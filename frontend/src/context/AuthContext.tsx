@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = "https://dcapp1-production.up.railway.app";
 
 
 interface User {
