@@ -209,17 +209,17 @@ export const getCurrentUser = (): Promise<User> =>
 
 // Dashboard
 export const getDashboardMetrics = (filterType: string = 'month'): Promise<DashboardData> =>
-  request(`/metrics/dashboard?filter_type=${encodeURIComponent(filterType)}`);
+  request(`/api/metrics/dashboard?filter_type=${encodeURIComponent(filterType)}`);
 
 
 // Agency metrics
 export const getAgencyMetrics = (agency: string, filterType: string = 'month') =>
-  request(`/metrics/agency/${encodeURIComponent(agency)}?filter_type=${encodeURIComponent(filterType)}`);
+  request(`/api/metrics/agency/${encodeURIComponent(agency)}?filter_type=${encodeURIComponent(filterType)}`);
 
 
 // DCA metrics
 export const getDCAMetrics = (dcaId: string, filterType: string = 'month') =>
-  request(`/metrics/dca/${encodeURIComponent(dcaId)}?filter_type=${encodeURIComponent(filterType)}`);
+  request(`/api/metrics/dca/${encodeURIComponent(dcaId)}?filter_type=${encodeURIComponent(filterType)}`);
 
 
 // Leads
