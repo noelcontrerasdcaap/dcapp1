@@ -263,7 +263,7 @@ export const createLead = (data: {
   campaign_id?: string;
   dca_id: string;
 }): Promise<Lead> =>
-  request('/leads', {
+  request('/api/leads', {
     method: 'POST',
     body: JSON.stringify(data),
   });
