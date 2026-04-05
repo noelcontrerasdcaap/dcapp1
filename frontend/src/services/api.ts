@@ -184,7 +184,7 @@ export interface MarketingDashboardData {
 
 // Auth
 export const login = (data: { email: string; password: string }) =>
-  request('/auth/login', {
+  request('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -197,14 +197,14 @@ export const register = (data: {
   role: string;
   agency: string;
 }) =>
-  request('/auth/register', {
+  request('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 
 
 export const getCurrentUser = (): Promise<User> =>
-  request('/auth/me');
+  request('/api/auth/me');
 
 
 // Dashboard
@@ -283,14 +283,14 @@ export const updateLead = (
     notes?: string;
   }
 ): Promise<Lead> =>
-  request(`/leads/${encodeURIComponent(id)}`, {
+  request(`/api/leads/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
 
 
 export const deleteLead = (id: string): Promise<{ message: string; id: string }> =>
-  request(`/leads/${encodeURIComponent(id)}`, {
+  request(`/api/leads/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
 
@@ -310,12 +310,12 @@ export const getUsers = (params?: { agency?: string; role?: string }): Promise<U
 
 
   const qs = query.toString();
-  return request(`/users${qs ? `?${qs}` : ''}`);
+  return request(`/api/users${qs ? `?${qs}` : ''}`);
 };
 
 
 export const getAllUsers = (): Promise<User[]> =>
-  request('/users/all');
+  request('/api/users/all');
 
 
 export const createUser = (data: {
@@ -326,7 +326,7 @@ export const createUser = (data: {
   agency: string;
   agencies?: string[];
 }): Promise<User> =>
-  request('/users', {
+  request('/api/users', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -344,33 +344,33 @@ export const updateUser = (
     active?: boolean;
   }
 ): Promise<User> =>
-  request(`/users/${encodeURIComponent(id)}`, {
+  request(`/api/users/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
 
 
 export const deactivateUser = (id: string): Promise<void> =>
-  request(`/users/${encodeURIComponent(id)}`, {
+  request(`/api/users/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
 
 
 export const deleteUserPermanent = (id: string): Promise<{ message: string }> =>
-  request(`/users/${encodeURIComponent(id)}/permanent`, {
+  request(`/api/users/${encodeURIComponent(id)}/permanent`, {
     method: 'DELETE',
   });
 
 
 export const getDCAs = (agency?: string): Promise<User[]> => {
   const qs = agency ? `?agency=${encodeURIComponent(agency)}` : '';
-  return request(`/users/dcas${qs}`);
+  return request(`/api/users/dcas${qs}`);
 };
 
 
 export const getAsesores = (agency?: string): Promise<User[]> => {
   const qs = agency ? `?agency=${encodeURIComponent(agency)}` : '';
-  return request(`/users/asesores${qs}`);
+  return request(`/api/users/asesores${qs}`);
 };
 
 
@@ -389,7 +389,7 @@ export const getSales = (params?: { agency?: string; dca_id?: string }): Promise
 
 
   const qs = query.toString();
-  return request(`/sales${qs ? `?${qs}` : ''}`);
+  return request(`/api/sales${qs ? `?${qs}` : ''}`);
 };
 
 
@@ -407,7 +407,7 @@ export const createSale = (data: {
   facturado_a: string;
   fecha_factura: string;
 }): Promise<Sale> =>
-  request('/sales', {
+  request('/api/sales', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -423,9 +423,7 @@ export const getReportsOverview = (
   query.append('filter_type', filterType);
   if (startDate) query.append('start_date_param', startDate);
   if (endDate) query.append('end_date_param', endDate);
-
-
-  return request(`/reports/overview?${query.toString()}`);
+  return request(`/api/reports/overview?${query.toString()}`);
 };
 
 
@@ -444,18 +442,18 @@ export const getCampaigns = (params?: { agency?: string; estado?: string }): Pro
 
 
   const qs = query.toString();
-  return request(`/campaigns${qs ? `?${qs}` : ''}`);
+  return request(`/api/campaigns${qs ? `?${qs}` : ''}`);
 };
 
 
 export const getActiveCampaigns = (agency?: string): Promise<Campaign[]> => {
   const qs = agency ? `?agency=${encodeURIComponent(agency)}` : '';
-  return request(`/campaigns/active${qs}`);
+  return request(`/api/campaigns/active${qs}`);
 };
 
 
 export const getCampaign = (id: string): Promise<Campaign> =>
-  request(`/campaigns/${encodeURIComponent(id)}`);
+  request(`/api/campaigns/${encodeURIComponent(id)}`);
 
 
 export const createCampaign = (data: {
@@ -472,7 +470,7 @@ export const createCampaign = (data: {
   presupuesto?: number;
   moneda?: string;
 }): Promise<Campaign> =>
-  request('/campaigns', {
+  request('/api/campaigns', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -495,14 +493,14 @@ export const updateCampaign = (
     moneda: string;
   }>
 ): Promise<Campaign> =>
-  request(`/campaigns/${encodeURIComponent(id)}`, {
+  request(`/api/campaigns/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
 
 
 export const deleteCampaign = (id: string): Promise<{ message: string }> =>
-  request(`/campaigns/${encodeURIComponent(id)}`, {
+  request(`/api/campaigns/${encodeURIComponent(id)}`, {
     method: 'DELETE',
   });
 
@@ -529,13 +527,13 @@ export const getMarketingDashboard = (params?: {
 
 
   const qs = query.toString();
-  return request(`/marketing/dashboard${qs ? `?${qs}` : ''}`);
+  return request(`/api/marketing/dashboard${qs ? `?${qs}` : ''}`);
 };
 
 
 // Config
 export const getConfig = () =>
-  request('/config');
+  request('/api/config');
 
 
 export default request;
