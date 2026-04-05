@@ -15,18 +15,24 @@ import { COLORS, FUNNEL_STAGES, HEALTH_COLORS, STAGE_COLORS } from '../../src/co
 import { getDashboardMetrics, getDCAMetrics, AgencyMetrics } from '../../src/services/api';
 import { useAuth } from '../../src/context/AuthContext';
 
+
 type FilterType = 'today' | 'week' | 'month';
+
 
 export default function DashboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
+
+
   const [filter, setFilter] = useState<FilterType>('month');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [agencies, setAgencies] = useState<AgencyMetrics[]>([]);
   const [dcaMetrics, setDcaMetrics] = useState<any>(null);
 
+
   const isDCA = user?.role === 'DCA';
+
 
   const fetchData = useCallback(async () => {
     try {
@@ -35,37 +41,51 @@ export default function DashboardScreen() {
         setDcaMetrics(data);
       } else {
         const data = await getDashboardMetrics(filter);
-        setAgencies(data.agencies);
+        setAgencies(data?.agencies || []);
       }
     } catch (error) {
       console.error('Error fetching dashboard:', error);
+      setAgencies([]);
+      setDcaMetrics(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, [filter, isDCA, user?.id]);
 
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchData();
   };
 
+
   const FilterButton = ({ type, label }: { type: FilterType; label: string }) => (
     <TouchableOpacity
       style={[styles.filterButton, filter === type && styles.filterButtonActive]}
       onPress={() => setFilter(type)}
     >
-      <Text style={[styles.filterText, filter === type && styles.filterTextActive]}>{label}</Text>
+      <Text style={[styles.filterText, filter === type && styles.filterTextActive]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 
-  const HealthIndicator = ({ status }: { status: string }) => (
-    <View style={[styles.healthDot, { backgroundColor: HEALTH_COLORS[status] || COLORS.textMuted }]} />
+
+  const HealthIndicator = ({ status }: { status?: string }) => (
+    <View
+      style={[
+        styles.healthDot,
+        { backgroundColor: HEALTH_COLORS[status || ''] || COLORS.textMuted },
+      ]}
+    />
   );
+
 
   if (loading) {
     return (
@@ -76,6 +96,7 @@ export default function DashboardScreen() {
       </SafeAreaView>
     );
   }
+
 
   // DCA Dashboard
   if (isDCA && dcaMetrics) {
@@ -90,10 +111,16 @@ export default function DashboardScreen() {
               <Text style={styles.greeting}>Hola, {user?.name}</Text>
               <Text style={styles.subtitle}>{dcaMetrics.agency}</Text>
             </View>
-            <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(auth)/lead/new')}>
+
+
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.push('/(auth)/lead/new')}
+            >
               <Ionicons name="add" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
+
 
           <View style={styles.filterContainer}>
             <FilterButton type="today" label="Hoy" />
@@ -101,24 +128,30 @@ export default function DashboardScreen() {
             <FilterButton type="month" label="Mes" />
           </View>
 
+
           {/* Quick Stats */}
           <View style={styles.quickStats}>
             <View style={styles.quickStatCard}>
               <Ionicons name="flash" size={24} color={COLORS.warning} />
-              <Text style={styles.quickStatNumber}>{dcaMetrics.new_leads_today}</Text>
+              <Text style={styles.quickStatNumber}>{dcaMetrics.new_leads_today || 0}</Text>
               <Text style={styles.quickStatLabel}>Nuevos Hoy</Text>
             </View>
+
+
             <View style={styles.quickStatCard}>
               <Ionicons name="time" size={24} color={COLORS.danger} />
-              <Text style={styles.quickStatNumber}>{dcaMetrics.pending_leads}</Text>
+              <Text style={styles.quickStatNumber}>{dcaMetrics.pending_leads || 0}</Text>
               <Text style={styles.quickStatLabel}>Pendientes</Text>
             </View>
+
+
             <View style={styles.quickStatCard}>
               <Ionicons name="calendar" size={24} color={COLORS.secondary} />
-              <Text style={styles.quickStatNumber}>{dcaMetrics.todays_appointments}</Text>
+              <Text style={styles.quickStatNumber}>{dcaMetrics.todays_appointments || 0}</Text>
               <Text style={styles.quickStatLabel}>Citas Hoy</Text>
             </View>
           </View>
+
 
           {/* Personal Funnel */}
           <View style={styles.card}>
@@ -126,13 +159,19 @@ export default function DashboardScreen() {
             <View style={styles.funnelContainer}>
               {FUNNEL_STAGES.map((stage) => (
                 <View key={stage} style={styles.funnelRow}>
-                  <View style={[styles.funnelDot, { backgroundColor: STAGE_COLORS[stage] }]} />
+                  <View
+                    style={[
+                      styles.funnelDot,
+                      { backgroundColor: STAGE_COLORS[stage] || COLORS.textMuted },
+                    ]}
+                  />
                   <Text style={styles.funnelStage}>{stage}</Text>
-                  <Text style={styles.funnelCount}>{dcaMetrics.stages[stage] || 0}</Text>
+                  <Text style={styles.funnelCount}>{dcaMetrics.stages?.[stage] || 0}</Text>
                 </View>
               ))}
             </View>
           </View>
+
 
           {/* Conversion Rates */}
           <View style={styles.card}>
@@ -140,7 +179,9 @@ export default function DashboardScreen() {
             <View style={styles.conversionGrid}>
               {['Contactado', 'Citado', 'Cumplida', 'Cierre'].map((stage) => (
                 <View key={stage} style={styles.conversionItem}>
-                  <Text style={styles.conversionValue}>{dcaMetrics.conversion_rates[stage] || 0}%</Text>
+                  <Text style={styles.conversionValue}>
+                    {dcaMetrics.conversion_rates?.[stage] || 0}%
+                  </Text>
                   <Text style={styles.conversionLabel}>{stage}</Text>
                 </View>
               ))}
@@ -151,7 +192,8 @@ export default function DashboardScreen() {
     );
   }
 
-  // Main Dashboard (for managers, directors, etc.)
+
+  // Main Dashboard
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -163,16 +205,23 @@ export default function DashboardScreen() {
             <Text style={styles.greeting}>Hola, {user?.name}</Text>
             <Text style={styles.subtitle}>{user?.role}</Text>
           </View>
-          <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(auth)/lead/new')}>
+
+
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.push('/(auth)/lead/new')}
+          >
             <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
+
 
         <View style={styles.filterContainer}>
           <FilterButton type="today" label="Hoy" />
           <FilterButton type="week" label="Semana" />
           <FilterButton type="month" label="Mes" />
         </View>
+
 
         {/* Agency Cards */}
         {agencies.map((agency) => (
@@ -183,35 +232,43 @@ export default function DashboardScreen() {
           >
             <View style={styles.agencyHeader}>
               <Text style={styles.agencyName}>{agency.agency}</Text>
+
+
               <View style={styles.healthIndicators}>
                 {['Contactado', 'Citado', 'Cumplida', 'Cierre'].map((stage) => (
-                  <HealthIndicator key={stage} status={agency.health[stage]} />
+                  <HealthIndicator key={stage} status={agency.health?.[stage]} />
                 ))}
               </View>
             </View>
 
+
             <View style={styles.agencyStats}>
               <View style={styles.agencyStat}>
-                <Text style={styles.agencyStatNumber}>{agency.total_leads}</Text>
+                <Text style={styles.agencyStatNumber}>{agency.total_leads || 0}</Text>
                 <Text style={styles.agencyStatLabel}>Leads</Text>
               </View>
+
+
               {FUNNEL_STAGES.slice(1, 4).map((stage) => (
                 <View key={stage} style={styles.agencyStat}>
-                  <Text style={styles.agencyStatNumber}>{agency.stages[stage] || 0}</Text>
+                  <Text style={styles.agencyStatNumber}>{agency.stages?.[stage] || 0}</Text>
                   <Text style={styles.agencyStatLabel}>{stage}</Text>
                 </View>
               ))}
             </View>
+
 
             <View style={styles.agencyBottom}>
               <View style={styles.agencyFunnel}>
                 {FUNNEL_STAGES.slice(4).map((stage) => (
                   <View key={stage} style={styles.smallStat}>
                     <Text style={styles.smallStatLabel}>{stage}</Text>
-                    <Text style={styles.smallStatNumber}>{agency.stages[stage] || 0}</Text>
+                    <Text style={styles.smallStatNumber}>{agency.stages?.[stage] || 0}</Text>
                   </View>
                 ))}
               </View>
+
+
               <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} />
             </View>
           </TouchableOpacity>
@@ -220,6 +277,7 @@ export default function DashboardScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -358,7 +416,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
   },
-  // DCA Dashboard Styles
   quickStats: {
     flexDirection: 'row',
     paddingHorizontal: 20,
