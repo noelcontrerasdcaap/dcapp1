@@ -246,12 +246,12 @@ export const getLeads = (params?: {
 
 
   const qs = query.toString();
-  return request(`/leads${qs ? `?${qs}` : ''}`);
+  return request(`/api/leads${qs ? `?${qs}` : ''}`);
 };
 
 
 export const getLead = (id: string): Promise<Lead> =>
-  request(`/leads/${encodeURIComponent(id)}`);
+  request(`/api/leads/${encodeURIComponent(id)}`);
 
 
 export const createLead = (data: {
